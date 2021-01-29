@@ -22,7 +22,15 @@ function App() {
   const [toFavCurrency, setToFavCurrency] = useState()
   const [favExchangeRate, setFavExchangeRate] = useState()
 
-  let [favourite, setFavourite] = useState([])
+  let [favourite, setFavourite] = useState(() => {
+    const localData = localStorage.getItem('favourite');
+    return localStorage ? JSON.parse(localData) : [];
+  });
+
+
+  useEffect(() => {
+    localStorage.setItem('favourite', JSON.stringify(favourite))
+  }, [favourite]);
 
   let toAmount, fromAmount
   if (amountInFromCurrency) {
@@ -80,7 +88,7 @@ function App() {
         setExchangeRate(data.rates[toFavCurrency])
         setFavourite([
           ...favourite,
-          { id: `${fromFavCurrency}-${toFavCurrency}`, pocatecniMena: fromFavCurrency, kurz: data.rates[toFavCurrency], druhaVybranaMena: toFavCurrency },
+          { id: `${fromFavCurrency}_${toFavCurrency}`, pocatecniMena: fromFavCurrency, kurz: (data.rates[toFavCurrency]).toFixed(2), druhaVybranaMena: toFavCurrency },
         ])
       })
   }
@@ -123,14 +131,14 @@ function App() {
 
   const deleteRow = (id) => {
     const values = [...favourite];
-    console.log(values);
     values.splice(id, 1);
     setFavourite(values);
 
   }
-  const infoRow = (from, to) => {
+  const transferCurrency = (from, to) => {
+    setFromCurrency(from)
+    setToCurrency(to)
 
-    console.log(id);
   }
 
   return (
@@ -193,7 +201,7 @@ function App() {
                     <td>{objektFavourite.kurz}</td>
                     <td>{objektFavourite.druhaVybranaMena}</td>
                     <td><button type="button" id="deleteButton" className="delete-button" onClick={() => { deleteRow(objektFavourite.id) }}> Odebrat</button></td>
-                    <td><button type="button" id="convertFavourite" className="convert-button" onClick={() => { infoRow(pocatecniMena), (druhaVybranaMena) }}> Předat</button></td>
+                    <td><button type="button" id="convertFavourite" className="convert-button" onClick={(e) => { transferCurrency(objektFavourite.pocatecniMena, objektFavourite.druhaVybranaMena) }}> Předat</button></td>
                   </tr>
                 ))}
 
