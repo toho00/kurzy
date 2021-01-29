@@ -28,9 +28,6 @@ function App() {
   });
 
 
-  useEffect(() => {
-    localStorage.setItem('favourite', JSON.stringify(favourite))
-  }, [favourite]);
 
   let toAmount, fromAmount
   if (amountInFromCurrency) {
@@ -94,19 +91,24 @@ function App() {
   }
 
   const handleAddFavourite = () => {
-
+    if (fromFavCurrency === toFavCurrency) {
+      return;
+    }
     // nacist to co je ulozene v localstorage (  {''EUR_CZK': true,'EUR_CAD': true, }  )
     // zparsovat do objektu v JS
     // zkontrolovat jestli zaznam uz existuje
     // jestli ano tak skoncit funkci
     // jestli ne tak pridame novy zaznam (dvojice men) do toho objektu
     // objekty sparsovat do stringu a ulozit do localstorage pod klicem favoriteConversions
+    // const existingFavs = {
+    //     'EUR_CZK': true,
+    //     'EUR_CAD': true,
+    //   };
 
     // const existingFavs = {
     //   'EUR_CZK': true,
     //   'EUR_CAD': true,
     // };
-
     // if (!existingFavs['EUR_CZK']) {
 
     // }
@@ -131,7 +133,7 @@ function App() {
 
   const deleteRow = (id) => {
     const values = [...favourite];
-    values.splice(id, 1);
+    values.splice(values.findIndex(value => value.id === id), 1);
     setFavourite(values);
 
   }
@@ -140,6 +142,14 @@ function App() {
     setToCurrency(to)
 
   }
+  useEffect(() => {
+    const favouriteObjekt = {};
+    // this.favourite.forEach(objektFavourite => {
+    //   favouriteObjekt.push(objektFavourite.id)
+    // })
+    localStorage.setItem('favourite', JSON.stringify(favourite))
+  }, [favourite]);
+
 
   return (
     <div className="App">
@@ -195,13 +205,14 @@ function App() {
                   <td></td>
 
                 </tr>
+
                 {favourite.map((objektFavourite) => (
                   <tr key={objektFavourite.id}>
                     <td>{objektFavourite.pocatecniMena}</td>
                     <td>{objektFavourite.kurz}</td>
                     <td>{objektFavourite.druhaVybranaMena}</td>
-                    <td><button type="button" id="deleteButton" className="delete-button" onClick={() => { deleteRow(objektFavourite.id) }}> Odebrat</button></td>
-                    <td><button type="button" id="convertFavourite" className="convert-button" onClick={(e) => { transferCurrency(objektFavourite.pocatecniMena, objektFavourite.druhaVybranaMena) }}> Předat</button></td>
+                    <td><button type="button" id="deleteButton" className="delete-button" onClick={(e) => { deleteRow(objektFavourite.id) }}> Odebrat</button></td>
+                    <td><button type="button" id="convertFavourite" className="convert-button" onClick={() => { transferCurrency(objektFavourite.pocatecniMena, objektFavourite.druhaVybranaMena) }}> Předat</button></td>
                   </tr>
                 ))}
 
