@@ -80,10 +80,9 @@ function App() {
         setExchangeRate(data.rates[toFavCurrency])
         setFavourite([
           ...favourite,
-          { id: `${fromFavCurrency.value}-${toFavCurrency.value}`, pocatecniMena: fromFavCurrency, kurz: data.rates[toFavCurrency], druhaVybranaMena: toFavCurrency },
+          { id: `${fromFavCurrency}-${toFavCurrency}`, pocatecniMena: fromFavCurrency, kurz: data.rates[toFavCurrency], druhaVybranaMena: toFavCurrency },
         ])
       })
-    console.log("přidaná:", favourite.id)
   }
 
   const handleAddFavourite = () => {
@@ -124,8 +123,13 @@ function App() {
 
   const deleteRow = (id) => {
     const values = [...favourite];
+    console.log(values);
     values.splice(id, 1);
     setFavourite(values);
+
+  }
+  const infoRow = (from, to) => {
+
     console.log(id);
   }
 
@@ -189,7 +193,7 @@ function App() {
                     <td>{objektFavourite.kurz}</td>
                     <td>{objektFavourite.druhaVybranaMena}</td>
                     <td><button type="button" id="deleteButton" className="delete-button" onClick={() => { deleteRow(objektFavourite.id) }}> Odebrat</button></td>
-                    <td><button type="button" id="convertFavourite" className="convert-button" > Předat</button></td>
+                    <td><button type="button" id="convertFavourite" className="convert-button" onClick={() => { infoRow(pocatecniMena), (druhaVybranaMena) }}> Předat</button></td>
                   </tr>
                 ))}
 
