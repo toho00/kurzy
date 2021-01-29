@@ -27,10 +27,10 @@ function App() {
   let toAmount, fromAmount
   if (amountInFromCurrency) {
     fromAmount = amount
-    toAmount = amount * exchangeRate
+    toAmount = (amount * exchangeRate).toFixed(2)
   } else {
     toAmount = amount
-    fromAmount = amount / exchangeRate
+    fromAmount = (amount / exchangeRate).toFixed(2)
   }
   useEffect(async () => {
     const res = await fetch(BASE_URL);
@@ -43,16 +43,15 @@ function App() {
 
   }, [])
 
-  useEffect(() => {
-    fetch(BASE_URL)
-      .then(res => res.json())
-      .then(data => {
-        const firstFavCurrency = Object.keys(data.rates)[0]
-        setFavCurrencyOptions([data.base, ...Object.keys(data.rates)])
-        setFromFavCurrency(data.base)
-        setToFavCurrency(firstFavCurrency)
-        setFavExchangeRate(data.rates[firstFavCurrency])
-      })
+  useEffect(async () => {
+    const res = await fetch(BASE_URL);
+    const data = await res.json();
+    const firstFavCurrency = Object.keys(data.rates)[0]
+    setFavCurrencyOptions([data.base, ...Object.keys(data.rates)])
+    setFromFavCurrency(data.base)
+    setToFavCurrency(firstFavCurrency)
+    setFavExchangeRate(data.rates[firstFavCurrency])
+
   }, [])
 
 
@@ -65,28 +64,29 @@ function App() {
   }, [fromCurrency, toCurrency])
 
   const handleFromAmountChange = (e) => {
-    setAmount(e.target.value)
+    setAmount(e.target.value);
     setAmountInFromCurrency(true)
   }
 
-  function handleToAmountChange(e) {
-    setAmount(e.target.value)
+  const handleToAmountChange = (e) => {
+    setAmount(e.target.value);
     setAmountInFromCurrency(false)
   }
 
-  function fetchConvertedCurrency() {
+  const fetchConvertedCurrency = () => {
     fetch(`${BASE_URL}?base=${fromFavCurrency}&symbols=${toFavCurrency}`)
       .then(res => res.json())
       .then(data => {
         setExchangeRate(data.rates[toFavCurrency])
         setFavourite([
           ...favourite,
-          { id: Math.random(), pocatecniMena: fromFavCurrency, kurz: data.rates[toFavCurrency], druhaVybranaMena: toFavCurrency },
+          { id: `${fromFavCurrency.value}-${toFavCurrency.value}`, pocatecniMena: fromFavCurrency, kurz: data.rates[toFavCurrency], druhaVybranaMena: toFavCurrency },
         ])
       })
+    console.log("přidaná:", favourite.id)
   }
 
-  function handleAddFavourite() {
+  const handleAddFavourite = () => {
 
     // nacist to co je ulozene v localstorage (  {''EUR_CZK': true,'EUR_CAD': true, }  )
     // zparsovat do objektu v JS
@@ -180,6 +180,7 @@ function App() {
                   <td>Kurz</td>
                   <td>2. Vybraná měna</td>
                   <td></td>
+                  <td></td>
 
                 </tr>
                 {favourite.map((objektFavourite) => (
@@ -188,6 +189,7 @@ function App() {
                     <td>{objektFavourite.kurz}</td>
                     <td>{objektFavourite.druhaVybranaMena}</td>
                     <td><button type="button" id="deleteButton" className="delete-button" onClick={() => { deleteRow(objektFavourite.id) }}> Odebrat</button></td>
+                    <td><button type="button" id="convertFavourite" className="convert-button" > Předat</button></td>
                   </tr>
                 ))}
 

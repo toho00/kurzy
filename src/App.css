@@ -115,8 +115,8 @@ footer {
 .equal {
     display: block;
     width: 100px;
-    position: absolute;
-    left: 47%;
+    height: 60px;
+    margin-left: 50px;
 }
 
 .input {
