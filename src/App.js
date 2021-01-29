@@ -90,9 +90,23 @@ function App() {
       })
   }
 
+
   const handleAddFavourite = () => {
     if (fromFavCurrency === toFavCurrency) {
       return;
+    }
+    if (favourite.length === 0) {
+      fetchConvertedCurrency();
+      return;
+    }
+    let x = 0
+    favourite.forEach((currencyRow) => {
+      if ((currencyRow.pocatecniMena === fromFavCurrency && currencyRow.druhaVybranaMena === toFavCurrency)) {
+        return x = + 1;
+      }
+    })
+    if (x === 0) {
+      fetchConvertedCurrency();
     }
     // nacist to co je ulozene v localstorage (  {''EUR_CZK': true,'EUR_CAD': true, }  )
     // zparsovat do objektu v JS
@@ -115,20 +129,6 @@ function App() {
 
     // delete existingFavs['EUR_CZK'] // odebrat existujici zaznam
     // existingFavs['EUR_FRA'] = true; // pridat novy zaznam
-
-    if (favourite.length === 0) {
-      fetchConvertedCurrency();
-      return;
-    }
-    let x = 0
-    favourite.forEach((currencyRow) => {
-      if ((currencyRow.pocatecniMena === fromFavCurrency && currencyRow.druhaVybranaMena === toFavCurrency)) {
-        return x = + 1;
-      }
-    })
-    if (x === 0) {
-      fetchConvertedCurrency();
-    }
   }
 
   const deleteRow = (id) => {
@@ -143,10 +143,6 @@ function App() {
 
   }
   useEffect(() => {
-    const favouriteObjekt = {};
-    // this.favourite.forEach(objektFavourite => {
-    //   favouriteObjekt.push(objektFavourite.id)
-    // })
     localStorage.setItem('favourite', JSON.stringify(favourite))
   }, [favourite]);
 
