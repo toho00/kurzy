@@ -22,6 +22,11 @@ function App() {
   const [toFavCurrency, setToFavCurrency] = useState()
   const [favExchangeRate, setFavExchangeRate] = useState()
 
+  let [favourite, setFavourite] = useState(() => {
+    const localData = localStorage.getItem('favourite');
+    return localStorage ? JSON.parse(localData) : [];
+  });
+
   let toAmount, fromAmount
   if (amountInFromCurrency) {
     fromAmount = amount
@@ -54,6 +59,7 @@ function App() {
       })
   }, [])
 
+
   useEffect(() => {
     if (fromCurrency != null && toCurrency != null) {
       fetch(`${BASE_URL}?base=${fromCurrency}&symbols=${toCurrency}`)
@@ -72,8 +78,43 @@ function App() {
     setAmountInFromCurrency(false)
   }
 
+  function fetchConvertedCurrency() {
+    fetch(`${BASE_URL}?base=${fromFavCurrency}&symbols=${toFavCurrency}`)
+      .then(res => res.json())
+      .then(data => {
+        setExchangeRate(data.rates[toFavCurrency])
+        setFavourite([
+          ...favourite,
+          { id: Math.random(), pocatecniMena: fromFavCurrency, kurz: data.rates[toFavCurrency], druhaVybranaMena: toFavCurrency },
+        ])
+      })
+  }
 
+  function handleAddFavourite() {
+    if (favourite.length === 0) {
+      fetchConvertedCurrency();
+      return;
+    }
+    let x = 0
+    favourite.forEach((currencyRow) => {
+      if ((currencyRow.pocatecniMena === fromFavCurrency && currencyRow.druhaVybranaMena === toFavCurrency)) {
+        return x = + 1;
+      }
+    })
+    if (x === 0) {
+      fetchConvertedCurrency();
+    }
+  }
 
+  const deleteRow = (id) => {
+    const values = [...favourite];
+    values.splice(id, 1);
+    setFavourite(values);
+    console.log(id);
+  }
+  useEffect(() => {
+    localStorage.setItem('favourite', JSON.stringify(favourite))
+  }, [favourite]);
 
   return (
     <div className="App">
@@ -100,17 +141,19 @@ function App() {
                 favCurrencyOptions={favCurrencyOptions}
                 selectedFavCurrency={fromFavCurrency}
                 onChangeFavCurrency={e => setFromFavCurrency(e.target.value)}
+
               />
             </div>
 
 
-            <button type="button" id="addFavouriteButton" className="favourite-button" onClick={e => this.onSubmit(e)} > Přidat</button>
+            <button type="button" id="addFavouriteButton" className="favourite-button" onClick={handleAddFavourite} > Přidat</button>
             <div className="favouriteAdd">
               <h3>Vyberte druhou měnu</h3>
               <FavCurrencyRow
                 favCurrencyOptions={favCurrencyOptions}
                 selectedFavCurrency={toFavCurrency}
                 onChangeFavCurrency={e => setToFavCurrency(e.target.value)}
+
               />
 
 
@@ -126,6 +169,15 @@ function App() {
                   <td></td>
 
                 </tr>
+                {favourite.map((objektFavourite) => (
+                  <tr key={objektFavourite.id}>
+                    <td>{objektFavourite.pocatecniMena}</td>
+                    <td>{objektFavourite.kurz}</td>
+                    <td>{objektFavourite.druhaVybranaMena}</td>
+                    <td><button type="button" id="deleteButton" className="delete-button" onClick={() => { deleteRow(objektFavourite.id) }}> Odebrat</button></td>
+                  </tr>
+                ))}
+
               </tbody>
             </table>
           </div>
@@ -147,10 +199,10 @@ function App() {
 
 
             </div>
-
+            <img src={Equal} className="equal" alt="euqal" width="60" />
             <div className="convertor-to">
               <h3>Vyberte na jakou měnu chcete hodnotu přepočítat</h3>
-              <img src={Equal} className="equal" alt="euqal" width="60" />
+
 
               <CurrencyRow
                 currencyOptions={currencyOptions}
