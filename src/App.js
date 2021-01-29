@@ -22,10 +22,7 @@ function App() {
   const [toFavCurrency, setToFavCurrency] = useState()
   const [favExchangeRate, setFavExchangeRate] = useState()
 
-  let [favourite, setFavourite] = useState(() => {
-    const localData = localStorage.getItem('favourite');
-    return localStorage ? JSON.parse(localData) : [];
-  });
+  let [favourite, setFavourite] = useState([])
 
   let toAmount, fromAmount
   if (amountInFromCurrency) {
@@ -35,16 +32,15 @@ function App() {
     toAmount = amount
     fromAmount = amount / exchangeRate
   }
-  useEffect(() => {
-    fetch(BASE_URL)
-      .then(res => res.json())
-      .then(data => {
-        const firstCurrency = Object.keys(data.rates)[0]
-        setCurrencyOptions([data.base, ...Object.keys(data.rates)])
-        setFromCurrency(data.base)
-        setToCurrency(firstCurrency)
-        setExchangeRate(data.rates[firstCurrency])
-      })
+  useEffect(async () => {
+    const res = await fetch(BASE_URL);
+    const data = await res.json();
+    const firstCurrency = Object.keys(data.rates)[0]
+    setCurrencyOptions([data.base, ...Object.keys(data.rates)])
+    setFromCurrency(data.base)
+    setToCurrency(firstCurrency)
+    setExchangeRate(data.rates[firstCurrency])
+
   }, [])
 
   useEffect(() => {
@@ -68,7 +64,7 @@ function App() {
     }
   }, [fromCurrency, toCurrency])
 
-  function handleFromAmountChange(e) {
+  const handleFromAmountChange = (e) => {
     setAmount(e.target.value)
     setAmountInFromCurrency(true)
   }
@@ -91,6 +87,26 @@ function App() {
   }
 
   function handleAddFavourite() {
+
+    // nacist to co je ulozene v localstorage (  {''EUR_CZK': true,'EUR_CAD': true, }  )
+    // zparsovat do objektu v JS
+    // zkontrolovat jestli zaznam uz existuje
+    // jestli ano tak skoncit funkci
+    // jestli ne tak pridame novy zaznam (dvojice men) do toho objektu
+    // objekty sparsovat do stringu a ulozit do localstorage pod klicem favoriteConversions
+
+    // const existingFavs = {
+    //   'EUR_CZK': true,
+    //   'EUR_CAD': true,
+    // };
+
+    // if (!existingFavs['EUR_CZK']) {
+
+    // }
+
+    // delete existingFavs['EUR_CZK'] // odebrat existujici zaznam
+    // existingFavs['EUR_FRA'] = true; // pridat novy zaznam
+
     if (favourite.length === 0) {
       fetchConvertedCurrency();
       return;
@@ -112,9 +128,6 @@ function App() {
     setFavourite(values);
     console.log(id);
   }
-  useEffect(() => {
-    localStorage.setItem('favourite', JSON.stringify(favourite))
-  }, [favourite]);
 
   return (
     <div className="App">
